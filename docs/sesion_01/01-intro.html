@@ -4,7 +4,7 @@
     <title>Introduction</title>
     <meta charset="utf-8" />
     <meta name="author" content="Roi Naveiro" />
-    <meta name="date" content="2021-06-18" />
+    <meta name="date" content="2021-06-20" />
     <script src="libs/header-attrs-2.9/header-attrs.js"></script>
     <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link rel="stylesheet" href="custom.css" type="text/css" />
@@ -16,7 +16,7 @@ class: center, middle, inverse, title-slide
 # Introduction
 ## Curso JAE ICMAT 2021
 ### Roi Naveiro
-### 2021-06-18
+### 2021-06-20
 
 ---
 
@@ -326,17 +326,145 @@ p(y_1, \dots, y_n \vert \theta, \sigma^2) \propto \exp \left \lbrace -\frac{1}{2
 
 
 ---
-# Regression
-
----
 
 class: middle, center, inverse
 
-# More than one-parameter models
+# More than one parameter models
 
 ---
 
-# The normal model
+# The multivariate normal model
+
+* If our sampling model is multivariate normal with mean `\(\boldsymbol{\theta}\)` and covariance `\(\Sigma\)`
+
+`\begin{equation*}
+p(\boldsymbol{y}_1, \dots, \boldsymbol{y}_n \vert \boldsymbol{\theta}, \Sigma) \propto \exp \left \lbrace -\frac{1}{2} \sum_{i=1}^n (\boldsymbol{y}_i - \boldsymbol{\theta}^T ) \Sigma^{-1} (\boldsymbol{y}_i - \boldsymbol{\theta})\right \rbrace
+\end{equation*}`
+
+* With known covariance, assuming a multivariate normal `\((\boldsymbol{\mu}_0, \Lambda_0)\)` prior for `\(\boldsymbol{\theta}\)`...
+
+* The posterior is multivariate normal `\((\boldsymbol{\mu}_n, \Lambda_n)\)`
+
+`\begin{equation*}
+\Lambda_n = (\Lambda_0^{-1} + n \Sigma^{-1})^{-1}
+\end{equation*}`
+
+`\begin{equation*}
+\boldsymbol{\mu}_n = (\Lambda_0^{-1} + n \Sigma^{-1})^{-1} (\Lambda_0^{-1} \boldsymbol{\mu}_0 + n \Sigma^{-1} \bar{\boldsymbol{y}})
+\end{equation*}`
+
+---
+
+# Regression
+
+* We observe pairs `\((y_i, \boldsymbol{x}_i)\)`.
+
+* We want to describe how the sampling distribution of `\(y\)` varies with `\(x\)`.
+
+* The sampling model is
+
+`\begin{equation*}
+\epsilon_1, \dots, \epsilon_n \sim \mathcal{N}(0, \sigma^2)
+\end{equation*}`
+`\begin{equation*}
+Y_i = \boldsymbol{\beta}^T \boldsymbol{x}_i + \epsilon_i
+\end{equation*}`
+
+* Then
+
+`\begin{equation*}
+p(y_1, \dots, y_n | \boldsymbol{x}_1, \dots, \boldsymbol{x}_n, \boldsymbol{\beta}, \sigma^2) \propto \exp \left \lbrace - \frac{1}{2 \sigma^2} \sum_{i=1}^n (y_i - \boldsymbol{\beta}^T \boldsymbol{x}_i)^2 \right \rbrace
+\end{equation*}`
+
+* Or
+
+`\begin{equation*}
+\boldsymbol{y} \vert \boldsymbol{X}, \boldsymbol{\beta}, \sigma^2 \sim \mathcal{N} (\boldsymbol{X} \boldsymbol{\beta}, \sigma^2 \boldsymbol{I})
+\end{equation*}`
+
+---
+
+# Regression
+
+* If: `\(\boldsymbol{\beta} \sim \mathcal{N} (\boldsymbol{\beta}_0, \Sigma_0)\)`, then the posterior is a multivariate density
+
+`\begin{equation*}
+\text{Var}[\boldsymbol{\beta} | \boldsymbol{y}, \boldsymbol{X}, \sigma^2] = (\Sigma_0^{-1} + \boldsymbol{X}^T \boldsymbol{X} / \sigma^2)^{-1}
+\end{equation*}`
+
+`\begin{equation*}
+\text{E}[\boldsymbol{\beta} | \boldsymbol{y}, \boldsymbol{X}, \sigma^2] = (\Sigma_0^{-1} + \boldsymbol{X}^T \boldsymbol{X} / \sigma^2)^{-1} (\Sigma_0^{-1} \boldsymbol{\beta}_0 + \boldsymbol{X}^T \boldsymbol{y}/ \sigma^2 )
+\end{equation*}`
+
+* If elements of `\(\Sigma_0^{-1}\)` are very small, the expectation is approx `\((\boldsymbol{X}\boldsymbol{X}^T)^{-1}\boldsymbol{X}^t \boldsymbol{y}\)`!
+
+* If `\(\sigma^2\)` is very large, the expectation is `\(\boldsymbol{\beta}_0\)`.
+
+* Exercise: proof that, if prior mean is zero, and covariance `\(\lambda \boldsymbol{I}\)`, the MAP of `\(\beta\)` is the solution of *ridge regression*.
+
+---
+
+![:scale 80%](./img/bay_reg1.png)
+
+---
+
+![:scale 80%](./img/bay_reg2.png)
+---
+
+# Univariate Normal with unknown variance
+
+* We do inference in both, mean `\(\theta\)` and variance `\(\sigma^2\)`.
+
+* Conjugate prior:
+
+`\begin{eqnarray*}
+p(\theta, \sigma^2) = p(\theta | \sigma^2)p(\sigma^2) = \text{normal}(\mu_0, \tau_0 = \sigma/\sqrt{\kappa_0}) p(\sigma^2)
+\end{eqnarray*}`
+
+* For the variance
+
+`\begin{eqnarray*}
+1/ \sigma^2  \sim \text{gamma}(\nu_0/2, \nu_0 \sigma_0^2/2)
+\end{eqnarray*}`
+
+* The posterior
+
+`\begin{eqnarray*}
+p(\theta, \sigma^2 | y_1, \dots, y_n) = p(\theta | \sigma^2, y_1, \dots, y_n)p(\sigma^2 | y_1, \dots, y_n)
+\end{eqnarray*}`
+
+---
+
+# Univariate Normal with unknown variance
+
+* Mean
+
+![:scale 70%](./img/eq1.png)
+
+* Precision
+
+![:scale 70%](./img/eq2.png)
+![:scale 70%](./img/eq3.png)
+
+
+
+---
+
+# Univariate Normal with unknown variance
+
+* Super easy to sample from posterior!!
+
+* If `\(\tau_0\)` is not proportional to gamma...
+
+`\begin{equation*}
+\theta \sim \text{normal} (\mu_0, \tau_0^2)
+\end{equation*}`
+
+`\begin{equation*}
+1/ \sigma^2  \sim \text{gamma}(\nu_0/2, \nu_0 \sigma_0^2/2)
+\end{equation*}`
+
+* The marginal posterior density of `\(1/\sigma^2\)` is not a gamma distribution, or any other dist. we can sample from easily.
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
