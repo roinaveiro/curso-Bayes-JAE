@@ -4,7 +4,7 @@
     <title>Introduction</title>
     <meta charset="utf-8" />
     <meta name="author" content="Roi Naveiro" />
-    <meta name="date" content="2021-06-20" />
+    <meta name="date" content="2021-06-24" />
     <script src="libs/header-attrs-2.9/header-attrs.js"></script>
     <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link rel="stylesheet" href="custom.css" type="text/css" />
@@ -16,7 +16,7 @@ class: center, middle, inverse, title-slide
 # Introduction
 ## Curso JAE ICMAT 2021
 ### Roi Naveiro
-### 2021-06-20
+### 2021-06-24
 
 ---
 
@@ -36,9 +36,23 @@ MathJax.Hub.Config({
 });
 </script>
 
-# Disclaimer
+# Outline
 
-This session's material comes from Ch. 1,2 and 3 of Hoff's book.
+1. Intro, basic concepts: belief and probability, exchangeability. Conjugate models.
+
+2. MC approximation, MCMC methods: Gibbs, Metropolis, Hamiltonian Montecarlo.
+
+3. Scalable inference: variational Bayes and Stochastic Gradiente Langevin Dynamics.
+
+3. AI applications.
+
+---
+
+# Slides and Labs
+
+* [Github](https://github.com/roinaveiro/curso-Bayes-JAE)
+
+* **Disclaimer**: This session's material comes from Ch. 1,2 and 3 of Hoff's book.
 
 
 Hoff, P. D. (2009). A first course in Bayesian statistical methods (Vol. 580). New York: Springer.
@@ -92,7 +106,7 @@ Hoff, P. D. (2009). A first course in Bayesian statistical methods (Vol. 580). N
 
 * Say, `\(Be(F)\)`, represents **numerically** our beliefs about a statement.
 
-* Can be formalized using bets ($Be(F) &gt; Be(G)$ means we would prefer to bet `\(F\)` is true than `\(G\)` is true).
+* Can be formalized using bets ( `\(Be(F) &gt; Be(G)\)` means we would prefer to bet `\(F\)` is true than `\(G\)` is true).
 
 * Axioms of beliefs:
 
@@ -128,6 +142,28 @@ p(y_1, \dots, y_n) = \int \left \lbrace \Pi_1^n p(y_i \vert \theta) \right \rbra
 $$
 
   for some parameter `\(\theta\)`, some prior and sampling model, that depend on our belief model   `\(p(y_1, \dots, y_n)\)`.
+  
+---
+
+# Why Bayes?
+
+* Provides a natural and principled way of combining prior information with data, within a solid decision theoretical framework
+
+* It provides inferences that are conditional on the data and are exact, without reliance on asymptotic approximation.
+
+* Bayesian analysis also can estimate any functions of parameters directly.
+
+* Likelihood principle.
+
+* It provides interpretable answers, such as “the true parameter  has a probability of 0.95 of falling in a 95% credible interval.
+
+* UQ in a fundamental way!
+
+---
+
+# Why not Bayes?
+
+* Computational cost.
 
 ---
 
@@ -162,12 +198,13 @@ p(\theta \vert y_1, \dots, y_{129}) = \frac{p(y_1, \dots, y_{129} \vert \theta )
 p(\theta \vert y_1, \dots, y_{129}) \propto \theta^{118} (1-\theta)^{11}
 \end{equation*}`
 
-* Identificar con núcleo de distribución Beta de parámteros `\(a=119\)` y `\(b=12\)`.
+* Normalizing constant? Identify with kernel of beta with parameters `\(a=119\)` and `\(b=12\)`.
 
 `\begin{equation*}
 \frac{x^{a-1}(1-x)^{b-1}} {B(a,b)}\!
 \end{equation*}`
 
+* Proof
 ---
 
 # Uniform and beta prior
@@ -178,7 +215,7 @@ p(\theta \vert y_1, \dots, y_{129}) \propto \theta^{118} (1-\theta)^{11}
 
 --
 
-* `\(p(y | \theta) = \binom{n}{y} \theta^y (1-\theta)^y\)`
+* `\(p(y | \theta) = \binom{n}{y} \theta^y (1-\theta)^{n-y}\)`
 
 * Posterior: `\(p(\theta | y) = \text{beta}(y+1, n-y+1)\)` .
 
@@ -234,7 +271,7 @@ Take a look at the asymptotic behaviour...
 
 
 ---
-# Confidence regios
+# Confidence regions
 
 * We can ask the posterior **any question**...
 
@@ -265,7 +302,7 @@ Take a look at the asymptotic behaviour...
 * If we model `\(Y_1, \dots, Y_n\)` as conditional iid samples from a Poisson of mean `\(\theta\)`
 
 `\begin{equation*}
-text{Pr} (Y_1=y_1, \dots, Y_n=y_n \vert \theta) \prod_{i=1}^n \frac{1}{y_i !} \theta^{y_i} e^{-n \theta} \propto \theta^{\sum y_i} e^{-n \theta}
+\text{Pr} (Y_1=y_1, \dots, Y_n=y_n \vert \theta) \prod_{i=1}^n \frac{1}{y_i !} \theta^{y_i} e^{-n \theta} \propto \theta^{\sum y_i} e^{-n \theta}
 \end{equation*}`
 
 * `\(\sum_{i=1}^n Y_i\)` is sufficient, and `\(\sum_{i=1}^n Y_i \vert \theta \sim \text{Poisson}(n\theta)\)`.
@@ -278,13 +315,13 @@ text{Pr} (Y_1=y_1, \dots, Y_n=y_n \vert \theta) \prod_{i=1}^n \frac{1}{y_i !} \t
 
 * Gamma distribution `\(p(\theta) = \frac{b^a}{\Gamma(a)} \theta^{a-1} e^{-b \theta}\)`.
 
-* Posterior is a `\(\text{gamma} (a + \sum_{i=1}^n Y_i,  b+n)\)` (try!).
+* Posterior is a `\(\text{gamma} (a + \sum_{i=1}^n Y_i,  b+n)\)` (proof).
 
 `\begin{equation*}
 \text{E}[\theta \vert y_1, \dots, y_n] = \frac{b}{b+n}\frac{a}{b} + \frac{n}{b+n} \frac{\sum_i y_i}{n}
 \end{equation*}`
 
-* Predictive:
+* Predictive (proof):
 
 `\begin{equation*}
 p(\tilde{y} \vert y_1, \dots, y_n) = \int p(\tilde{y} \vert \theta) p(\theta \vert y_1, \dots, y_n) d \theta
@@ -300,7 +337,7 @@ p(\tilde{y} \vert y_1, \dots, y_n) = \int p(\tilde{y} \vert \theta) p(\theta \ve
  \text{Var}[\tilde{Y} \vert y_1, \dots, y_n] = \text{E}[\theta \vert y_1, \dots, y_n]\times \frac{b+n+1}{b+n}
 \end{equation*}`
 
-
+* Lab
 ---
 # The normal model
 
@@ -312,7 +349,7 @@ p(y_1, \dots, y_n \vert \theta, \sigma^2) \propto \exp \left \lbrace -\frac{1}{2
 
 * Assume we know the variance. Conjugate prior on `\(\theta\)` is normal `\((\mu_0, \tau_0^2)\)`.
 
-* Posterior is normal 
+* Posterior is normal (proof)
 
 `\begin{equation*}
 \mu_n = \frac{\tilde{\tau}_0^2}{\tilde{\tau}_0^2 + n \tilde{\sigma}^2} \mu_0 +\frac{n \tilde{\sigma}^2}{\tilde{\tau}_0^2 + n \tilde{\sigma}^2}\bar{y}
@@ -447,7 +484,6 @@ p(\theta, \sigma^2 | y_1, \dots, y_n) = p(\theta | \sigma^2, y_1, \dots, y_n)p(\
 ![:scale 70%](./img/eq3.png)
 
 
-
 ---
 
 # Univariate Normal with unknown variance
@@ -465,6 +501,12 @@ p(\theta, \sigma^2 | y_1, \dots, y_n) = p(\theta | \sigma^2, y_1, \dots, y_n)p(\
 \end{equation*}`
 
 * The marginal posterior density of `\(1/\sigma^2\)` is not a gamma distribution, or any other dist. we can sample from easily.
+
+---
+
+# Another intractable 
+
+* Bayesian mixture model (blackboard).
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>

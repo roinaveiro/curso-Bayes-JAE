@@ -1,0 +1,82 @@
+---
+title: "Lab 1 JAE Bayes"
+author: "Roi Naveiro y David Ríos Insua"
+date: "22/06/2021"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Modelo normal-normal
+
+```{r}
+chanque <- scan("data/data3.txt")
+chanque
+```
+
+Los datos recogen longitudes de chanquetes interceptados por pesca ilegal en el puerto de Málaga en centímetros.
+
+
+EL análisis exploratorio sugiere un outlier que eliminamos del estudio. Repetimos histograma y decidimos transformar por log para mejor normalidad
+```{r, message=FALSE }
+hist(chanque)
+nodata<-length(chanque)
+Schanque<-sort(chanque)
+nchanque<-Schanque[1:nodata-1]
+hist(nchanque)
+y<-log(nchanque)
+hist(y, breaks=17)
+```
+
+Calculamos algunos estadísticos que luego emplearemos en la inferencia
+```{r, message=FALSE }
+n<-length(y) ; ybar<-mean(y) ; s2<-var(y)
+
+```
+Suponemos una a priori plana para la media mu del log de las tallas. Además, como el número de datos es grande (más de 30, sustituimos sigma por s). La a posteriori es normal con media y desviación típica
+
+
+```{r, message=FALSE}
+mu0 <- 7.0; k0  <- 1
+s20 <- 0.9; nu0 <- 1
+
+## posterior inference
+kn<-k0+n ; nun<-nu0+n
+mun<- (k0*mu0 + n*ybar)/kn  
+s2n<- (nu0*s20 +(n-1)*s2 +k0*n*(ybar-mu0)^2/(kn))/(nun)
+mun
+s2n
+```
+
+Muestreamos de la distribución a posteriori
+```{r, message=FALSE}
+#### Monte Carlo sampling
+set.seed(1)
+S<-10000
+s2.postsample<-1/rgamma(S,  (nu0+n)/2, s2n*(nu0+n)/2 )
+theta.postsample<-rnorm(S, mun, sqrt(s2.postsample/(k0+n)))
+quantile(theta.postsample, c(.025,.975))
+```
+
+```{r, message=FALSE}
+##
+plot(theta.postsample[1:5000], s2.postsample[1:5000],pch=".",
+   xlab=expression(theta),ylab=expression(sigma^2) )
+```
+
+```{r, message=FALSE }
+plot(density(s2.postsample,adjust=3))
+plot(density(theta.postsample,adjust=3))
+```
+
+
+Imaginad que (el log de) la minima talla legal es 5.3. Contrastamos las hipótesis HO: mup<=5 .3  H1:p>5.3. 
+
+```{r, message=FALSE }
+##
+```
+

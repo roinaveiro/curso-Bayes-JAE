@@ -108,7 +108,7 @@ Strong evidence for $\theta_1 > \theta_2$. What is the posterior probability of 
 theta_1_samples <- rgamma(100000, a+sy1, b+n1)
 theta_2_samples <- rgamma(100000, a+sy2, b+n2)
 
-mean(theta_1_samples > theta_2_samples)
+
 ```
 
 The predictive is neg binomial
