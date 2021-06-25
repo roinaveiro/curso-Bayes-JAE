@@ -37,7 +37,8 @@ Calculamos algunos estadísticos que luego emplearemos en la inferencia
 n<-length(y) ; ybar<-mean(y) ; s2<-var(y)
 
 ```
-Suponemos una a priori plana para la media mu del log de las tallas. Además, como el número de datos es grande (más de 30, sustituimos sigma por s). La a posteriori es normal con media y desviación típica
+
+Suponemos una a priori normal para la media mu del log de las tallas. Además, como el número de datos es grande (más de 30, sustituimos sigma por s). La a posteriori es normal con media y desviación típica
 
 
 ```{r, message=FALSE}
@@ -77,6 +78,6 @@ plot(density(theta.postsample,adjust=3))
 Imaginad que (el log de) la minima talla legal es 5.3. Contrastamos las hipótesis HO: mup<=5 .3  H1:p>5.3. 
 
 ```{r, message=FALSE }
-##
+mean(theta.postsample <= 5.3)
 ```
 
