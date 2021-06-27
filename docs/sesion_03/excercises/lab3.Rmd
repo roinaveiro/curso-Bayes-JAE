@@ -1,0 +1,75 @@
+---
+title: "Lab 3. Probabilistic Programming"
+author: "Roi Naveiro"
+date: ' '
+output:
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+# Stan in Linear Regression
+
+Libraries
+```{r, message=FALSE}
+library(cmdstanr)
+library(posterior)
+library(bayesplot)
+color_scheme_set("brightblue")
+```
+
+We first generate data from easy linear regression model 
+
+```{r, message=FALSE}
+gen_dat <- function(n, beta, sigma) {
+  x <- rnorm(n)
+  y <- 0 + beta*x + rnorm(n, 0, sigma)
+  data.frame(x = x, y = y)
+}
+```
+
+We visualize them
+```{r, message=FALSE}
+data = gen_dat(100, 3.5, 0.85)
+plot(data$x, data$y)
+```
+
+## Sample from posterior
+
+Compile model
+```{r, message=FALSE}
+mod <- cmdstan_model("lr.stan")
+mod$print()
+```
+
+Run model
+```{r, message=FALSE}
+data_l <- list(N=100, y=data$y, x=data$x )
+fit <- mod$sample(
+  data = data_l,
+  seed = 123,
+  chains = 4,
+  parallel_chains = 4,
+  refresh = 500
+)
+```
+
+Summary of data
+```{r, message=FALSE}
+fit$summary()
+```
+
+
+Posterior samples
+```{r, message=FALSE}
+mcmc_hist(fit$draws("beta"))
+```
+
+```{r, message=FALSE}
+mcmc_hist(fit$draws("sigma"))
+```
