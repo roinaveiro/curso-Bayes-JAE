@@ -1,0 +1,412 @@
+---
+title: "Variational Inference"
+subtitle: "Curso JAE ICMAT 2021"
+author: "Roi Naveiro y David Ríos Insua"
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    css: ["default", "custom.css"]
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      beforeInit: "macros.js"
+    includes:
+      before_body: mathjax.html
+  keep_md: true
+---
+
+# Bayesian inference
+
+* Core problem: approximate posterior distribution.
+
+* Remember: all inference about unknown quantities can be done if we know the posterior.
+
+* Analytic (and exact) calculations just in limited cases.
+
+* We need to **approximate** the posterior. Two methods, so far:
+
+    1. **Simulation-based**: we devise strategies to sample from posterior (MCMC).
+    
+    2. **Optimization-based**: approximate posterior by tractable density, minimizing some similarity measure (Variational Inference). 
+    
+---
+
+# Setting
+
+* General problem
+
+$$
+p(\boldsymbol{z},\boldsymbol{x}) = p(\boldsymbol{x} | \boldsymbol{z}) p(\boldsymbol{z})
+$$
+
+   
+* $\boldsymbol{z}$ are latent variables, $\boldsymbol{x}$ are observation.
+
+* Inference: $p(\boldsymbol{z} | \boldsymbol{x})$.
+
+* MCMC: construct an ergodic Markov chain with stationary distribution $p(\boldsymbol{z} | \boldsymbol{x})$.
+
+* MCMC slow when:
+
+    1. Large amount of data.
+    2. Very complex models (many parameters)
+    
+* Still MCMC comes with guarantees of producing asymptotically exact samples
+
+---
+
+# Why is it so hard?
+
+* The posterior...
+
+$$
+p(\boldsymbol{z} | \boldsymbol{x}) = \frac{p(\boldsymbol{z}, \boldsymbol{x})}{p(\boldsymbol{x})}
+$$
+* ... involves computing the evidence
+
+$$
+p(\boldsymbol{x}) = \int p(\boldsymbol{z}, \boldsymbol{x}) d \boldsymbol{z}
+$$
+
+* For many models, unavailable in closed form, or requires exponential time.
+
+* Evidence is what we need to compute the posterior from the joint.
+
+---
+
+# Motivation
+
+* Bayesian mixture of Gaussians (blackboard).
+
+
+![:scale 55%](./img/MoG.png)
+
+---
+
+# Variational Inference (on a nutshell)
+
+1. Posit a familiy $\mathcal{Q}$ of (tractable) densities over latent variables.
+
+2. Formulate optimization: find $q(\boldsymbol{z}) \in \mathcal{Q}$ "closer" to real posterior $p(\boldsymbol{z} \vert \boldsymbol{x})$.
+$$
+q^*(\boldsymbol{z}) = \arg\min_{q(\boldsymbol{z}) \in \mathcal{Q}} \text{KL} (q(\boldsymbol{z}) || p(\boldsymbol{z} \vert \boldsymbol{x}))
+$$
+3. Solve, and use $q^*(\boldsymbol{z})$ as approximation of posterior.
+
+* Trade-off: $\mathcal{Q}$ rich enough to capture relevant aspects of posterior, but still tractable.
+
+
+---
+
+# Variational Inference (on a nutshell)
+
+![:scale 75%](./img/VI_pic.png)
+
+---
+
+# The ELBO
+
+* Recall that KL is (expectations taken wrt $q(\boldsymbol{z})$)
+
+$$
+\text{KL} (q(\boldsymbol{z}) || p(\boldsymbol{z} \vert \boldsymbol{x})) = \mathbb{E}[\log q(\boldsymbol{z})] - \mathbb{E}[\log p(\boldsymbol{z} | \boldsymbol{x})]
+$$
+
+* That can be written as
+
+$$
+\text{KL} (q(\boldsymbol{z}) || p(\boldsymbol{z} \vert \boldsymbol{x})) = \mathbb{E}[\log q(\boldsymbol{z})] - \mathbb{E}[\log p(\boldsymbol{z} , \boldsymbol{x})] + \log p(\boldsymbol{x})
+$$
+
+* Not computable!
+
+* Instead, we minimize an alternative objective
+
+$$
+\text{ELBO}(q) = \mathbb{E}[\log p(\boldsymbol{z} , \boldsymbol{x})] - \mathbb{E}[\log q(\boldsymbol{z})]
+$$
+
+* Intuition (blackboard)
+
+---
+
+# Mean-field variational inference
+
+* To complete the specification of the problem, we specify $\mathcal{Q}$.
+
+* The mean field approximation works with families such that
+
+$$
+q(\boldsymbol{z}) = \prod_{j=1}^m q(z_j)
+$$
+
+* Depending on the problem, each *varitional factor* will be parameterized in a particular form.
+
+* In Bayesian mixture of Gaussians
+
+\begin{equation}
+q(\boldsymbol{\mu}, \boldsymbol{c}) = \prod_{k=1}^K q(\mu_k; m_k, s^2_k)\prod_{i=1}^n q(c_i; \phi_i)
+\end{equation}
+
+---
+
+# Mean-field variational inference
+
+* Captures marginals, not correlations.
+
+
+![:scale 75%](./img/mf.png)
+
+* Same mean but lower variance!!
+
+---
+# CAVI
+
+* Having completely specified inference as an optimization, we propose an algorithm to solve it.
+
+* Coordinate-ascent: iteratively optimize each factor, holding the rest fixed.
+
+* Local-optimum!!
+
+![:scale 100%](./img/cavi.png)
+
+---
+# Derivation
+
+* Blackboard.
+
+* Similarity with Gibbs: gibbs iteratively samples from each variable's complete conditional. 
+
+* CAVI takes the expected log of this conditional and uses it to update.
+
+---
+# Praticalities
+
+* ELBO generally non-convex, CAVI guarantees just convergence to local optimum. Multiple re-starts.
+
+* Assess convergence: when the change in ELBO falls below threshold...
+
+* Or use log-predictive distrution in a hold-out dataset (this way we avoid computing ELBO using whole dataset).
+
+* For **conditionally-conjugate** models in the exponential family, the optimization of each coordinate has **closed-form solution**.
+
+---
+# Bayesian Mixture of Gaussians
+
+![:scale 81%](./img/mog_cavi.png)
+
+---
+# Bayesian Mixture of Gaussians
+
+![:scale 70%](./img/exp.png)
+---
+
+# Modern times
+
+* Massive datasets.
+
+* CAVI does not scale...
+
+* ... it requires iterating throuhg the whole dataset at each iteration.
+
+* Alternative: use gradient-based optimization (climb the ELBO by following its gradient).
+
+* But still, computing the gradient requires analyzing the whole dataset...
+
+---
+
+# Stochastic Variational Inference
+
+* Uses two convenient tweaks (to move the variational parameters $\lambda$).
+
+* Instead of gradients, uses **natural gradients**...
+
+* They warp the parameter space such that moving the same distance in different directions amounts to equal change in symmetrized KL divervence.
+
+* Uses the results of **stochastic optimization**.
+
+* Creates noisy (but unbiased) estimates of the full gradient, using a subset (mini-batch) of the data.
+
+$$
+\lambda_{t+1} = \lambda_t + \epsilon_t \hat{g}(\lambda_t)
+$$
+
+* $\mathbb{E}[\hat{g}(\lambda_t)] = g(\lambda_t)$
+
+---
+
+# Stochastic Variational Inference
+
+* Results from Robbins and Monro (1951) guarantees convergence (to local optimum) under noisy gradients, as long as the step size satisfies
+
+$$
+\sum_t \epsilon_t = \infty; \hspace{3cm} \sum_t \epsilon^2_t < \infty.
+$$
+
+---
+# SVI for exponential families
+
+![:scale 90%](./img/svi.png)
+
+---
+# Problems (until now)
+
+* We have relied on models with *convenient structure*...
+
+* ...deriving VI algos, requires a lot of model specific analysis.
+
+* For **conditionally conjugate** models in the exponential family, the optmizations in CAVI have closed-form solutions (similarly for SVI).
+
+* In general, the expectations are intractable.
+
+* **Goal**: develop generic VI algorithms that keeps model-specific work to a minimum.
+
+---
+# I have a dream...
+
+**Probabilistic programming**
+
+
+![:scale 90%](./img/stan.png)
+
+---
+# Black box variational inference
+
+* Idea (using again stochastic optmization):
+
+  1. Write derivative of the objective (ELBO) as an expectation with respect to the variational
+approximation.
+
+  2. Sample from the variational approximation to get noisy but unbiased gradients. 
+  
+  3. Use those gradients to update our parameters. 
+---
+# Black Box VI
+
+* Recall that
+
+$$\text{ELBO}(q) = \mathbb{E}[\log p(\boldsymbol{z} , \boldsymbol{x})] - \mathbb{E}[\log q(\boldsymbol{z})]$$
+* Let's denote parameterized the variational distribution with $\lambda$:
+
+$$
+q(\boldsymbol{z}) \rightarrow q(\boldsymbol{z} \vert \lambda)
+$$
+
+* We can write the ELBO as
+
+\begin{equation}
+\nabla_{\lambda} ELBO = \mathbb{E} \left[\nabla_\lambda \log q(\boldsymbol{z}\vert \lambda) \left( \log p(\boldsymbol{z} , \boldsymbol{x}) - \log q(\boldsymbol{z}) \right)  \right] 
+\end{equation}
+
+* Derivation: blackboard.
+
+---
+# Black Box VI
+
+![:scale 85%](./img/bvi.png)
+---
+# Black Box VI
+
+* To evaluate the gradient we need:
+
+  1. Evaluating the joint distribution $\log p(\boldsymbol{z} , \boldsymbol{x})$
+  
+  2. Evaluating the variational distribution.
+  
+  3. Evaluating the gradient of the log of the variational distribution.
+  
+* 2 and 3 does not depend on the specific model!!
+
+* Only assumption about model is that the
+practitioner can compute the log of the joint.
+
+* Controlling the variance...
+  
+
+---
+# MCMC in large scale problems
+
+* Big data
+
+  1. Gibbs, pass through all data (and not always usable)
+  
+  2. MH and HMC both require evaluating likelihood or log-likelihood, pass through al     data.
+
+---
+# MCMC in large scale problems
+
+* Recall that we are interested in sampling from the posterior
+
+$$
+p(z | x) \propto p(x | z) p(z) = p(z) \prod_{i=1}^N p(x_i \vert z)
+$$
+
+* Imagine we just care about the MAP: the value of $z$ with highest posterior density.
+
+* Maximizing posterior is the same as maximizing log-posterior.
+
+* Gradient descent:
+
+\begin{equation}
+z_{t+1} = z_t + \epsilon  [\nabla \log p(z) + \sum_{i=1}^N \log p(x_i | z)]
+\end{equation}
+
+---
+# MCMC in large scale problems
+
+* Stochastic gradient descent: at each time, sample a mini-batch of data $x_{1t}, \dots x_{nt}$
+
+\begin{equation}
+z_{t+1} = z_t + \epsilon_t  [\nabla \log p(z_t) + \frac{N}{n} \sum_{i=1}^n \log p(x_{ti} | z_t)]
+\end{equation}
+
+* Under Robbins-Monro this converges to MAP...
+
+* ...but we want the full posterior!
+
+---
+# Langevin Dynamics
+
+* Take gradient steps, but inject Gaussian noise in the parameter updates so that the do not collapse to MAP
+\begin{equation}
+\Delta z_t = \frac{\epsilon}{2} \left( \nabla \log p(z_t) + \sum_{i=1}^N \nabla \log p(x_i | z_t)\right) + \eta_t
+\end{equation}
+where $\eta_t \sim \mathcal{N} (0, \epsilon)$.
+
+* The gradient step sizes and the variances of the injected noise are balanced so that the variance of the samples matches that of the posterior. (Not exact).
+
+* Still we are using the whole dataset in each iteration...
+
+---
+# Stochastic Gradient Langevin Dynamics
+
+* Combining both...
+
+\begin{equation}
+\Delta z_t = \frac{\epsilon}{2} \left( \nabla \log p(z_t) + \frac{N}{n}\sum_{i=1}^n \nabla \log p(x_{ti} | z_t)\right) + \eta_t
+\end{equation}
+where $\eta_t \sim \mathcal{N} (0, \epsilon_t)$.
+
+* Where $\epsilon_t$ satisfies Robins-Monro
+
+\begin{equation}
+\sum_t \epsilon_t = \infty \hspace{2cm} \sum_t \epsilon^2_t < \infty
+\end{equation}
+
+---
+# References
+
+* Blei, Kucucelbir, MacAulliffe Variational inference a review for statisticians 
+
+* Jordan et al. An introduction to variational methods for graphical models
+
+* Fox, Roberts. A tutorial on variational Bayesian inference
+
+* Wellin et. al. Bayesian Learning via Stochastic Gradient Langevin Dynamics
+
+* Video by the great David Blei 
+https://www.youtube.com/watch?v=Dv86zdWjJKQ
+
+
