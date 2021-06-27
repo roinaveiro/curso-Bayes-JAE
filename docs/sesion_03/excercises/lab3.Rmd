@@ -39,7 +39,7 @@ data = gen_dat(100, 3.5, 0.85)
 plot(data$x, data$y)
 ```
 
-## Sample from posterior
+## Posterior Inference using MCMC
 
 Compile model
 ```{r, message=FALSE}
@@ -47,10 +47,10 @@ mod <- cmdstan_model("lr.stan")
 mod$print()
 ```
 
-Run model
+Run model using MCMC
 ```{r, message=FALSE}
 data_l <- list(N=100, y=data$y, x=data$x )
-fit <- mod$sample(
+fit_mcmc <- mod$sample(
   data = data_l,
   seed = 123,
   chains = 4,
@@ -59,17 +59,41 @@ fit <- mod$sample(
 )
 ```
 
-Summary of data
+Summary of results
 ```{r, message=FALSE}
-fit$summary()
+fit_mcmc$summary()
 ```
 
 
 Posterior samples
 ```{r, message=FALSE}
-mcmc_hist(fit$draws("beta"))
+mcmc_hist(fit_mcmc$draws("beta"))
 ```
 
 ```{r, message=FALSE}
-mcmc_hist(fit$draws("sigma"))
+mcmc_hist(fit_mcmc$draws("sigma"))
+```
+
+## Posterior Inference using VI
+
+```{r, message=FALSE}
+fit_vi <- mod$variational(
+  data = data_l,
+  seed = 123,
+  refresh = 500
+)
+```
+
+Summary of results
+```{r, message=FALSE}
+fit_vi$summary()
+```
+
+Posterior samples
+```{r, message=FALSE}
+mcmc_hist(fit_vi$draws("beta"))
+```
+
+```{r, message=FALSE}
+mcmc_hist(fit_vi$draws("sigma"))
 ```
