@@ -1,0 +1,171 @@
+---
+title: "Current Research Trends"
+subtitle: "Curso JAE ICMAT 2021"
+author: "Roi Naveiro y David Ríos Insua"
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    css: ["default", "custom.css"]
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      beforeInit: "macros.js"
+    includes:
+      before_body: mathjax.html
+  keep_md: true
+---
+
+# Modern research (ML and Bayes)
+
+* NLP.
+
+* RL.
+
+* Interpretability and Explainability.
+
+* Fairness.
+
+* Causal Inference.
+
+* Scalable Bayesian Inference.
+
+* Adversarial ML.
+
+---
+
+# NLP - Arms race
+
+* Pre-trained language models + fine tuning
+
+![:scale 65%](./img/gpt.png)
+* Wu Dao 1.75 **trillion parameters**!!
+---
+# NLP - Research
+
+* Architecture design.
+
+* Applications.
+
+  1. Dialog systems.
+  2. Emotion recognition.
+  3. Computer vision + NLP.s
+
+* Theoretical results?
+
+* Non democratic... only accesible to people with data and computational power (google, facebook, ...)
+
+---
+# Reinforcenment Learning
+
+* According to a lot of people, the way to AGI.
+
+* Multi-agent RL.
+
+* Many applications.
+
+![:scale 55%](./img/rl-ads.jpg)
+---
+# Interpretability & Explainability
+
+* Black-box algorithms are not always applicable.
+
+* We need algorithms to tell us why the make the decisions.
+
+* **Interpretability**: use algorithms that are interpretable per se.
+
+* **Explainability**: use black box algorithms and ellaborate explanations a posteriori.
+
+  * The do not explain reality!!
+  
+* Rashomon sets
+  
+Rudin, C. (2019). Stop explaining black box machine learning models for high stakes decisions and use interpretable models instead. Nature Machine Intelligence, 1(5), 206-215.
+
+---
+# Fairness - Bias in ML
+
+* Data is biased $\rightarrow$ algorithms are biased
+
+![:scale 65%](./img/compas.jpg)
+---
+# Fairness - Bias in ML
+
+![:scale 65%](./img/bias.png)
+---
+# Research on Fairness
+
+* Definition.
+
+* How to **guarantee** that models are not using, e.g., racial information?
+
+* Uncovering biases.
+
+* Interpretability...
+
+---
+# Causal Inference
+
+* Data will provide associations between variables...
+
+* ... to do science we need to measure **causation**!
+
+---
+# Correlation is not causation
+
+![:scale 95%](./img/corr.png)
+
+
+---
+# Causal Inference
+
+* The model is **key**!
+
+![:scale 65%](./img/simp.jpg)
+
+---
+# Causal Inference
+
+* Can we determine cause-effect relations using data?
+
+* Under some circumstances, and some assumptions, yes.
+
+* Essentially, we assume that we observe every confounder.
+
+* Research on how to adjust for every confounder...
+
+* And on applications.
+
+---
+# Scalable Bayesian Inference
+
+---
+# Adversarial Machine Learning
+
+* Automation using ML increases... attempts to cheat ML systems increases.
+
+![:scale 75%](./img/aml.png)
+
+---
+# Adversarial Machine Learning
+
+![:scale 75%](./img/aml.jpeg)
+
+---
+# Adversarial Machine Learning
+
+* Make ML algorithms **robust** against likely attacks.
+
+* Idea: formalize confrontation between algorithm and adversary as a **game**.
+
+* Compute **Nash equilibrium** and use it as robust solution.
+
+* Common Knowledge?
+
+* Bayesian games, adversarial risk analysis?
+
+---
+
+![:scale 55%](./img/weapons.jpg)
+
